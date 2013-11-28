@@ -6,7 +6,7 @@ Find the shortest path between two wikipedia pages
 Strategy
 --------
 
-Due to the (Same origin policy)[http://en.wikipedia.org/wiki/Same-origin_policy]
+Due to the [Same origin policy](http://en.wikipedia.org/wiki/Same-origin_policy)
 I cannot even use an iframe to traverse wikipedia to find a path connecting two nodes.
 This policy further rules out using JS to make queries to wikipedia.
 
