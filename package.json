@@ -1,0 +1,9 @@
+{
+  "name": "wiki-game",
+  "description": "get from A to B on wikipedia!",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "express": "3.x"
+  }
+}
