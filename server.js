@@ -1,7 +1,8 @@
 "use strict";
 
 var express = require('express'),
-          _ = require('underscore');
+          _ = require('underscore'),
+       request = require('request');
 
 var app = express();
 
@@ -16,7 +17,18 @@ app.use('/solve', function(req, res, next){
   next();
 });
 
+// en.wikipedia.org/wiki/XXXXX
+// start = XXXXXXX1
+// end   = XXXXXXX2
+var wikibase = 'http://en.wikipedia.org/wiki/'
+
 app.get('/solve', function(req, res){
+  console.log(wikibase + req.query.start);
+  request(wikibase + req.query.start, function(err, response, body){
+    if (!err && response.statusCode == 200) {
+      console.log(body)
+    }
+  });
   res.send(200);
 });
 
