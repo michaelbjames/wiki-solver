@@ -17,6 +17,10 @@ app.use("/solve", function(req, res, next){
   next();
 });
 
+function dijkstra (start, end) {
+  // body...
+}
+
 // en.wikipedia.org/wiki/XXXXX
 // start = XXXXXXX1
 // end   = XXXXXXX2
