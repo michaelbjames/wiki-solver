@@ -1,13 +1,13 @@
 "use strict";
 
-var express = require('express'),
-          _ = require('underscore'),
-    request = require('request'),
-      jsdom = require('jsdom');
+var express = require("express"),
+          _ = require("underscore"),
+    request = require("request"),
+      jsdom = require("jsdom");
 
 var app = express();
 
-app.use('/solve', function(req, res, next){
+app.use("/solve", function(req, res, next){
   if(_.isUndefined(req.query.start)){
     return res.send(400, "Please specify a start address");
   }
@@ -20,9 +20,9 @@ app.use('/solve', function(req, res, next){
 // en.wikipedia.org/wiki/XXXXX
 // start = XXXXXXX1
 // end   = XXXXXXX2
-var wikibase = 'http://en.wikipedia.org/wiki/'
+var wikibase = "http://en.wikipedia.org/wiki/";
 
-app.get('/solve', function(req, res){
+app.get("/solve", function(req, res){
   // request(wikibase + req.query.start, function(err, response, body){
   //   if (!err && response.statusCode == 200) {
   //     console.log(body)
