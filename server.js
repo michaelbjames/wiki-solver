@@ -26,7 +26,7 @@ app.use("/solve", function(req, res, next){
 
 function neighbors(article){
   var deferred = when.defer();
-  console.log(article);
+  // console.log(article);
   jsdom.env(
     wikibase + article,
     ["http://code.jquery.com/jquery.js"],
@@ -54,21 +54,26 @@ function dijkstra (start, end) {
 
   dist[start] = 0;
 
-  var neighborDist = function(v){
-    var alt = dist[u] + 1;
-    if(alt < dist[v]){
-      dist[v] = alt;
-      previous[v] = u;
-      if(!visited[v]){
-        q.push(v);
+  var neighborDist = function(vs){
+    _.each(vs,function(v){
+      if(_.isUndefined(dist[u])){dist[u] = 0;}
+      if(_.isUndefined(dist[v])){dist[v] = 0;}
+      var alt = dist[u] + 1;
+      if(alt < dist[v]){
+        dist[v] = alt;
+        previous[v] = u;
+        if(!visited[v]){
+          q.push(v);
+        }
       }
-    }
+    });
   };
 
   q.push(start);
 
   while(q.length > 0){
     u = q.pop();
+    console.log("q.pop()= " + u);
     if(u === end){
       var seq = [];
       while(!_.isUndefined(previous[u])){
@@ -78,7 +83,7 @@ function dijkstra (start, end) {
       }
     }
     visited[u] = true;
-    _.each(neighbors(u), neighborDist);
+    neighbors(u).then(neighborDist);
   }
 }
 
@@ -89,10 +94,12 @@ app.get("/solve", function(req, res){
   //   }
   // });
 
-  neighbors(req.query.start).then(function(thing){
-    console.log(thing);
-    res.send(200);
-  });
+  console.log(dijkstra(req.query.start, req.query.end));
+  res.send(200);
+  // neighbors(req.query.start).then(function(thing){
+    // console.log(thing);
+    // res.send(200);
+  // });
 });
 
 app.listen(8080);
