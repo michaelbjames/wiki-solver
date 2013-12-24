@@ -12,6 +12,7 @@ var app = express();
 // start = XXXXXXX1
 // end   = XXXXXXX2
 var wikibase = "http://en.wikipedia.org/wiki/";
+var wikiregex = new RegExp(wikibase);
 
 app.use("/solve", function(req, res, next){
   if(_.isUndefined(req.query.start)){
@@ -30,11 +31,15 @@ function neighbors(article){
     wikibase + article,
     ["http://code.jquery.com/jquery.js"],
     function(err,window){
-      deferred.resolve(_.filter(window.$("#mw-content-text a").map(function(i){
+      deferred.resolve(
+      _.map(
+      _.filter(window.$("#mw-content-text a").map(function(i){
         return (window.$("#mw-content-text a")[i]).href;
       }),function(i){
-        return (/http:\/\/en.wikipedia.org\/wiki\//).test(i) &&
+        return wikiregex.test(i) &&
                !(/#.*$/).test(i);
+      }),function(i){
+        return i.split("wikipedia.org/wiki/")[1];
       }));
     });
   return deferred.promise;
