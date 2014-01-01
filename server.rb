@@ -22,7 +22,7 @@ def neighbors(name)
       value = link.attr('href')
       next if value =~ /.*:.*/
       if value =~ /^\/wiki\/.*$/
-        connected.push(value)
+        connected << value
       end
   end
   connected.uniq
@@ -37,17 +37,17 @@ def dijkstra(start, finish)
          u = ""
 
   dist[start] = 0
-  q.push(start)
+  q << start
 
   while q.length > 0
     u = q.shift
     puts "inspecting #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
-        seq.push u
+        seq << u
         u = previous[u]
       end
-      seq.push start
+      seq << start
       return seq
     end
 
@@ -59,7 +59,7 @@ def dijkstra(start, finish)
         dist[hood] = alt
         previous[hood] = u
         unless visited[hood]
-          q.push(hood)
+          q << hood
         end
       end
     end
@@ -90,6 +90,6 @@ get '/solve' do
     body 'The end address is not a valid en.wikipedia address'
     return
   end
-  # seq = dijkstra(start,finish)
-  # return seq.reverse.to_s
+  seq = dijkstra(start,finish)
+  return seq.reverse.to_s
 end
