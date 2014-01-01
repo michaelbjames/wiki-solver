@@ -1,13 +1,22 @@
 require 'sinatra'
+# require 'sinatra-websocket'
 require 'nokogiri'
 require 'open-uri'
-require 'pry'
+
 
 WIKIBASE = 'http://en.wikipedia.org'
 
+def valid_wiki(name)
+  begin
+    open(WIKIBASE + name)
+  rescue OpenURI::HTTPError => e
+    return false
+  end
+  return true
+end
+
 def neighbors(name)
   article = Nokogiri::HTML(open(WIKIBASE + name))
-  # binding.pry
   connected = Array.new
   article.css('#mw-content-text a').each do |link|
       value = link.attr('href')
@@ -71,6 +80,16 @@ get '/solve' do
   end
   start = '/wiki/' + params[:start]
   finish = '/wiki/' + params[:end]
-  seq = dijkstra(start,finish)
-  return seq.revers.to_s
+  unless valid_wiki(start)
+    status 400
+    body 'The start address is not a valid en.wikipedia address'
+    return
+  end
+  unless valid_wiki(finish)
+    status 400
+    body 'The end address is not a valid en.wikipedia address'
+    return
+  end
+  # seq = dijkstra(start,finish)
+  # return seq.reverse.to_s
 end
