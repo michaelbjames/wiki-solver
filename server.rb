@@ -41,7 +41,7 @@ def dijkstra(start, finish)
 
   while q.length > 0
     u = q.shift
-    puts "inspecting #{u}"
+    puts "#{previous[u]} -> #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
         seq << u
@@ -91,5 +91,6 @@ get '/solve' do
     return
   end
   seq = dijkstra(start,finish)
+  puts seq.reverse.to_s
   return seq.reverse.to_s
 end

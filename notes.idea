@@ -1,0 +1,4 @@
+Wikidump:
+http://dumps.wikimedia.org/enwiki/
+  require: pages.sql
+           pagelinks.sql
