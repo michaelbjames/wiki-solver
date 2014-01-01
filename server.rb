@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sinatra-websocket'
 require 'nokogiri'
 require 'open-uri'
+require 'json'
 
 set :server, 'thin'
 set :sockets, []
@@ -30,7 +31,7 @@ def neighbors(name)
   connected.uniq
 end
 
-def dijkstra(start, finish)
+def dijkstra(start, finish, ws)
       dist = Hash.new{|k,v| v = Float::INFINITY}
    visited = Hash.new{|k,v| v = false}
   previous = Hash.new
@@ -43,6 +44,8 @@ def dijkstra(start, finish)
 
   while q.length > 0
     u = q.shift
+    return unless settings.sockets.include?(ws)
+    ws.send({:previous => previous[u], :current => u}.to_json)
     puts "inspecting #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
@@ -70,7 +73,7 @@ def dijkstra(start, finish)
 end
 
 get '/solve' do
-  if !reqest.websocket?
+  if !request.websocket?
     status 400
     body 'Please use a websocket to connect'
     return
@@ -101,13 +104,13 @@ get '/solve' do
   request.websocket do |ws|
     ws.onopen do
       settings.sockets << ws
-    end
-    ws.onmessage do
+      seq = dijkstra(start,finish,ws)
     end
     ws.onclose do
+      warn('websocket closed')
+      settings.sockets.delete(ws)
     end
   end
 
-  seq = dijkstra(start,finish)
-  return seq.reverse.to_s
+  return 'hello'
 end
