@@ -53,6 +53,9 @@ def dijkstra(start, finish, ws)
         u = previous[u]
       end
       seq << start
+      puts seq.reverse.to_s
+      ws.send({:solution => seq.reverse}.to_json)
+      ws.close_connection_after_writing
       return seq
     end
 
@@ -69,7 +72,7 @@ def dijkstra(start, finish, ws)
       end
     end
   end
-
+  return 'No Solution'
 end
 
 get '/solve' do
@@ -104,7 +107,7 @@ get '/solve' do
   request.websocket do |ws|
     ws.onopen do
       settings.sockets << ws
-      seq = dijkstra(start,finish,ws)
+      dijkstra(start,finish,ws)
     end
     ws.onclose do
       warn('websocket closed')
@@ -112,5 +115,5 @@ get '/solve' do
     end
   end
 
-  return 'hello'
+  return
 end
