@@ -1,8 +1,10 @@
 require 'sinatra'
-# require 'sinatra-websocket'
+require 'sinatra-websocket'
 require 'nokogiri'
 require 'open-uri'
 
+set :server, 'thin'
+set :sockets, []
 
 WIKIBASE = 'http://en.wikipedia.org'
 
@@ -22,7 +24,7 @@ def neighbors(name)
       value = link.attr('href')
       next if value =~ /.*:.*/
       if value =~ /^\/wiki\/.*$/
-        connected.push(value)
+        connected << value
       end
   end
   connected.uniq
@@ -44,10 +46,10 @@ def dijkstra(start, finish)
     puts "inspecting #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
-        seq.push u
+        seq << u
         u = previous[u]
       end
-      seq.push start
+      seq << start
       return seq
     end
 
@@ -59,7 +61,7 @@ def dijkstra(start, finish)
         dist[hood] = alt
         previous[hood] = u
         unless visited[hood]
-          q.push(hood)
+          q << hood
         end
       end
     end
@@ -68,6 +70,11 @@ def dijkstra(start, finish)
 end
 
 get '/solve' do
+  if !reqest.websocket?
+    status 400
+    body 'Please use a websocket to connect'
+    return
+  end
   if params[:start].nil?
     status 400
     body 'Missing start parameter'
@@ -90,6 +97,17 @@ get '/solve' do
     body 'The end address is not a valid en.wikipedia address'
     return
   end
-  # seq = dijkstra(start,finish)
-  # return seq.reverse.to_s
+
+  request.websocket do |ws|
+    ws.onopen do
+      settings.sockets << ws
+    end
+    ws.onmessage do
+    end
+    ws.onclose do
+    end
+  end
+
+  seq = dijkstra(start,finish)
+  return seq.reverse.to_s
 end
