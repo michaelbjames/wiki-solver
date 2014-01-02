@@ -7,7 +7,7 @@ require 'json'
 set :server, 'thin'
 set :sockets, []
 
-WIKIBASE = 'http://en.wikipedia.org'
+WIKIBASE = 'http://en.wikipedia.org/wiki/'
 
 def valid_wiki(name)
   begin
@@ -25,7 +25,7 @@ def neighbors(name)
       value = link.attr('href')
       next if value =~ /.*:.*/
       if value =~ /^\/wiki\/.*$/
-        connected << value
+        connected << value.gsub("/wiki/","")
       end
   end
   connected.uniq
@@ -46,7 +46,7 @@ def dijkstra(start, finish, ws)
     u = q.shift
     return unless settings.sockets.include?(ws)
     ws.send({:type => 'progress', :previous => previous[u], :current => u}.to_json)
-    puts "inspecting #{u}"
+    puts "#{previous[u]} -> #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
         seq << u
@@ -91,8 +91,8 @@ get '/solve' do
     body 'Missing end parameter'
     return
   end
-  start = '/wiki/' + params[:start]
-  finish = '/wiki/' + params[:end]
+  start = params[:start]
+  finish = params[:end]
   unless valid_wiki(start)
     status 400
     body 'The start address is not a valid en.wikipedia address'
