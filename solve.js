@@ -43,18 +43,38 @@ function tick() {
 }
 
 // 1. Add three nodes and three links.
-setTimeout(function() {
-  var a = {id: "a"}, b = {id: "b"}, c = {id: "c"};
-  nodes.push(a, b, c);
-  links.push({source: a, target: b}, {source: a, target: c}, {source: b, target: c});
-  start();
-}, 0);
+// setTimeout(function() {
+//   var a = {id: "a"}, b = {id: "b"}, c = {id: "c"};
+//   nodes.push(a, b, c);
+//   links.push({source: a, target: b}, {source: a, target: c}, {source: b, target: c});
+//   start();
+// }, 0);
+
+var reprocess = _.debounce(start,100);
 
 function receive (event) {
   console.log(event.data);
+  var msg = JSON.parse(event.data);
+  switch(msg.type) {
+    case "progress":
+      if(_.isNull(msg.previous)){ //Weird first case
+        nodes.push({id: msg.current});
+      } else {
+        if(!_.contains(nodes, msg.previous)){
+          nodes.push({id: msg.previous});
+        }
+        nodes.push({id:msg.current});
+        links.push({source: {id: msg.previous}, target: {id:msg.current}});
+      }
+      reprocess();
+      break;
+    case "solution":
+      break;
+  }
 }
 
 function submit () {
+  $('#submit').remove();
   var start = $('#start').val(),
         end = $('#end').val(),
         url = "ws://localhost:4567/solve?start="+start+"&end="+end;
