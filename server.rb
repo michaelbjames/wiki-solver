@@ -45,7 +45,7 @@ def dijkstra(start, finish, ws)
   while q.length > 0
     u = q.shift
     return unless settings.sockets.include?(ws)
-    ws.send({:previous => previous[u], :current => u}.to_json)
+    ws.send({:type => 'progress', :previous => previous[u], :current => u}.to_json)
     puts "inspecting #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
@@ -54,7 +54,7 @@ def dijkstra(start, finish, ws)
       end
       seq << start
       puts seq.reverse.to_s
-      ws.send({:solution => seq.reverse}.to_json)
+      ws.send({:type => 'solution', :solution => seq.reverse}.to_json)
       ws.close_connection_after_writing
       return seq
     end

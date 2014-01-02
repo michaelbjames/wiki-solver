@@ -50,4 +50,15 @@ setTimeout(function() {
   start();
 }, 0);
 
+function receive (event) {
+  console.log(event.data);
+}
 
+function submit () {
+  var start = $('#start').val(),
+        end = $('#end').val(),
+        url = "ws://localhost:4567/solve?start="+start+"&end="+end;
+
+  var ws = new WebSocket(url);
+  ws.onmessage = receive;
+}
