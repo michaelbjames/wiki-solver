@@ -45,8 +45,8 @@ def dijkstra(start, finish, ws)
   while q.length > 0
     u = q.shift
     return unless settings.sockets.include?(ws)
-    ws.send({:type => 'progress', :previous => previous[u], :current => u}.to_json) unless previous[u].nil?
-    puts "#{previous[u]} -> #{u}" unless previous[u].nil?
+    ws.send({:type => 'progress', :previous => previous[u], :current => u}.to_json)
+    puts "#{previous[u]} -> #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
         seq << u

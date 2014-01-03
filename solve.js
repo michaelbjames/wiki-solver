@@ -39,22 +39,18 @@ function receive (event) {
     case "progress":
       var n = {id: msg.current},
           p = {id: msg.previous},
-          index = indexOf(nodes, "id", msg.previous),
-          pn = nodes[Math.random() * nodes.length | 0];
-      console.log(index);
+      index = indexOf(nodes, "id", msg.previous);
       if(index < 0){
         p.children = [n];
         nodes.push(p);
       } else {
-        pn = nodes[index];
+        var pn = nodes[index];
         if (pn.children)
           pn.children.push(n);
         else
           pn.children = [n];
       }
-    nodes.push(n);
-
-    console.log(nodes);
+      nodes.push(n);
 
     // Recompute the layout and data join.
     node = node.data(tree.nodes(root), function(d) { return d.id; });
