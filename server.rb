@@ -1,10 +1,13 @@
 require 'sinatra'
-# require 'sinatra-websocket'
+require 'sinatra-websocket'
 require 'nokogiri'
 require 'open-uri'
+require 'json'
 
+set :server, 'thin'
+set :sockets, []
 
-WIKIBASE = 'http://en.wikipedia.org'
+WIKIBASE = 'http://en.wikipedia.org/wiki/'
 
 def valid_wiki(name)
   begin
@@ -22,13 +25,17 @@ def neighbors(name)
       value = link.attr('href')
       next if value =~ /.*:.*/
       if value =~ /^\/wiki\/.*$/
+<<<<<<< HEAD
         connected << value
+=======
+        connected << value.gsub("/wiki/","")
+>>>>>>> refactor/websockets
       end
   end
   connected.uniq
 end
 
-def dijkstra(start, finish)
+def dijkstra(start, finish, ws)
       dist = Hash.new{|k,v| v = Float::INFINITY}
    visited = Hash.new{|k,v| v = false}
   previous = Hash.new
@@ -41,6 +48,8 @@ def dijkstra(start, finish)
 
   while q.length > 0
     u = q.shift
+    return unless settings.sockets.include?(ws)
+    ws.send({:type => 'progress', :previous => previous[u], :current => u}.to_json)
     puts "#{previous[u]} -> #{u}"
     if u.casecmp(finish) == 0
       while(!previous[u].nil?)
@@ -48,6 +57,10 @@ def dijkstra(start, finish)
         u = previous[u]
       end
       seq << start
+      puts seq.reverse.to_s
+      ws.send({:type => 'solution', :solution => seq.reverse}.to_json)
+      sleep 5
+      ws.close_connection_after_writing
       return seq
     end
 
@@ -64,10 +77,15 @@ def dijkstra(start, finish)
       end
     end
   end
-
+  return 'No Solution'
 end
 
 get '/solve' do
+  if !request.websocket?
+    status 400
+    body 'Please use a websocket to connect'
+    return
+  end
   if params[:start].nil?
     status 400
     body 'Missing start parameter'
@@ -78,8 +96,8 @@ get '/solve' do
     body 'Missing end parameter'
     return
   end
-  start = '/wiki/' + params[:start]
-  finish = '/wiki/' + params[:end]
+  start = params[:start]
+  finish = params[:end]
   unless valid_wiki(start)
     status 400
     body 'The start address is not a valid en.wikipedia address'
@@ -90,7 +108,17 @@ get '/solve' do
     body 'The end address is not a valid en.wikipedia address'
     return
   end
-  seq = dijkstra(start,finish)
-  puts seq.reverse.to_s
-  return seq.reverse.to_s
+
+  request.websocket do |ws|
+    ws.onopen do
+      settings.sockets << ws
+      dijkstra(start,finish,ws)
+    end
+    ws.onclose do
+      warn('websocket closed')
+      settings.sockets.delete(ws)
+    end
+  end
+
+  return
 end
