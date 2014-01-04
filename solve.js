@@ -1,4 +1,4 @@
-var w = window.innerWidth, h = window.innerHeight;
+var w = 1024, h = 400;
 
 var duration = 750;
 
@@ -17,8 +17,8 @@ var diagonal = d3.svg.diagonal();
 var svg = d3.select("#d3container").append("svg")
     .attr("width", w)
     .attr("height", h)
-    .append("g")
-    .attr("transform", "translate(10,10)");
+    .append("g");
+    // .attr("transform", "translate(10,10)");
 
 var node = svg.selectAll(".node"),
     link = svg.selectAll(".link");
@@ -63,6 +63,14 @@ function receive (event) {
         .attr("cx", function(d) { return d.parent.px; })
         .attr("cy", function(d) { return d.parent.py; });
 
+    node.enter().append("text")
+        .attr("class", "node-text")
+        .attr("x", function(d) { return d.parent.px;})
+        .attr("y", function(d) { return d.parent.py;})
+        .style("fill-opacity", 1)
+        .attr("text-anchor", "start")
+        .text(function(d) { return d.id; });
+
     // Add entering links in the parent’s old position.
     link.enter().insert("path", ".node")
         .attr("class", "link")
@@ -81,6 +89,11 @@ function receive (event) {
     t.selectAll(".node")
               .attr("cx", function(d) { return d.px = d.x; })
               .attr("cy", function(d) { return d.py = d.y; });
+
+    t.selectAll(".node-text")
+              .attr("cx", function(d) { return d.px = d.x; })
+              .attr("cy", function(d) { return d.py = d.y; })
+              .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
 
       break;
     case "solution":
