@@ -25,11 +25,7 @@ def neighbors(name)
       value = link.attr('href')
       next if value =~ /.*:.*/
       if value =~ /^\/wiki\/.*$/
-<<<<<<< HEAD
-        connected << value
-=======
         connected << value.gsub("/wiki/","")
->>>>>>> refactor/websockets
       end
   end
   connected.uniq
