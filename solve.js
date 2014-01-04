@@ -1,7 +1,6 @@
 var w = 1024, h = 400;
-
 var duration = 750;
-
+var WIKIBASE = "http://en.wikipedia.org/wiki/";
 var tree = d3.layout.tree()
                     .size([w,h]);
 
@@ -63,12 +62,15 @@ function receive (event) {
         .text(function(d){return d.id;})
         .attr("cx", function(d) { return d.parent.px; })
         .attr("cy", function(d) { return d.parent.py; });
-
-        node.enter().append("text")
+    
+    node.enter().append("a")
+                .attr("xlink:href",function(d){return WIKIBASE + d.id;})
+                .attr("target","_blank")
+        .append("text")
         .attr("class", "node-text")
         .attr("x", function(d) { return d.parent.px;})
         .attr("y", function(d) { return d.parent.py;})
-        .attr("dy", ".35em")
+        .attr("dx", ".35em")
         .style("fill-opacity", 1)
         .attr("text-anchor", "start")
         .text(function(d) { return d.id; });
@@ -94,8 +96,8 @@ function receive (event) {
 
     t.selectAll(".node-text")
               .attr("x", function(d) { return d.px = d.x; })
-              .attr("y", function(d) { return d.py = d.y; });
-              // .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
+              .attr("y", function(d) { return d.py = d.y; })
+              .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
 
       break;
     case "solution":
