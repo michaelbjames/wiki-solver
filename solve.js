@@ -57,23 +57,24 @@ function receive (event) {
       link = link.data(tree.links(nodes), function(d) { return d.source.id + "-" + d.target.id; });
 
       // Add entering nodes in the parent’s old position.
-      node.enter().append("circle")
+      node.enter().append("a")
+                  .attr("class", "node")
+                  .attr("xlink:href",function(d){return WIKIBASE + d.id;})
+                  .attr("target","_blank")
+          .append("circle")
           .attr("class", "node")
           .attr("r", 4)
           .text(function(d){return d.id;})
           .attr("cx", function(d) { return d.parent.px; })
           .attr("cy", function(d) { return d.parent.py; });
 
-      node.enter().append("a")
-                  .attr("xlink:href",function(d){return WIKIBASE + d.id;})
-                  .attr("target","_blank")
+      node.enter()
           .append("text")
           .attr("class", "node-text")
           .attr("x", function(d) { return d.parent.px;})
           .attr("y", function(d) { return d.parent.py;})
           .attr("dx", ".45em")
           .attr("dy", ".35em")
-          .style("fill-opacity", 1)
           .attr("text-anchor", "start")
           .text(function(d) { return d.id; });
 
@@ -113,6 +114,12 @@ function receive (event) {
         } else
           return "#999";
       });
+      d3.selectAll(".node-text")
+        .style("display", function(d){
+          if(_.contains(msg.solution,d.id))
+            return "block";
+          return;
+        });
       ws.close();
       break;
   }
