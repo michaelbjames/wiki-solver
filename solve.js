@@ -62,7 +62,7 @@ function receive (event) {
         .text(function(d){return d.id;})
         .attr("cx", function(d) { return d.parent.px; })
         .attr("cy", function(d) { return d.parent.py; });
-    
+
     node.enter().append("a")
                 .attr("xlink:href",function(d){return WIKIBASE + d.id;})
                 .attr("target","_blank")
@@ -70,7 +70,8 @@ function receive (event) {
         .attr("class", "node-text")
         .attr("x", function(d) { return d.parent.px;})
         .attr("y", function(d) { return d.parent.py;})
-        .attr("dx", ".35em")
+        .attr("dx", ".45em")
+        .attr("dy", ".35em")
         .style("fill-opacity", 1)
         .attr("text-anchor", "start")
         .text(function(d) { return d.id; });
