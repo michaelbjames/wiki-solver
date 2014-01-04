@@ -51,62 +51,72 @@ function receive (event) {
       }
       nodes.push(n);
 
-    // Recompute the layout and data join.
-    node = node.data(tree.nodes(root), function(d) { return d.id; });
-    link = link.data(tree.links(nodes), function(d) { return d.source.id + "-" + d.target.id; });
+      // Recompute the layout and data join.
+      node = node.data(tree.nodes(root), function(d) { return d.id; });
+      link = link.data(tree.links(nodes), function(d) { return d.source.id + "-" + d.target.id; });
 
-    // Add entering nodes in the parent’s old position.
-    node.enter().append("circle")
-        .attr("class", "node")
-        .attr("r", 4)
-        .text(function(d){return d.id;})
-        .attr("cx", function(d) { return d.parent.px; })
-        .attr("cy", function(d) { return d.parent.py; });
+      // Add entering nodes in the parent’s old position.
+      node.enter().append("circle")
+          .attr("class", "node")
+          .attr("r", 4)
+          .text(function(d){return d.id;})
+          .attr("cx", function(d) { return d.parent.px; })
+          .attr("cy", function(d) { return d.parent.py; });
 
-    node.enter().append("a")
-                .attr("xlink:href",function(d){return WIKIBASE + d.id;})
-                .attr("target","_blank")
-        .append("text")
-        .attr("class", "node-text")
-        .attr("x", function(d) { return d.parent.px;})
-        .attr("y", function(d) { return d.parent.py;})
-        .attr("dx", ".45em")
-        .attr("dy", ".35em")
-        .style("fill-opacity", 1)
-        .attr("text-anchor", "start")
-        .text(function(d) { return d.id; });
+      node.enter().append("a")
+                  .attr("xlink:href",function(d){return WIKIBASE + d.id;})
+                  .attr("target","_blank")
+          .append("text")
+          .attr("class", "node-text")
+          .attr("x", function(d) { return d.parent.px;})
+          .attr("y", function(d) { return d.parent.py;})
+          .attr("dx", ".45em")
+          .attr("dy", ".35em")
+          .style("fill-opacity", 1)
+          .attr("text-anchor", "start")
+          .text(function(d) { return d.id; });
 
-    // Add entering links in the parent’s old position.
-    link.enter().insert("path", ".node")
-        .attr("class", "link")
-        .attr("d", function(d) {
-          var o = {x: d.source.px, y: d.source.py};
-          return diagonal({source: o, target: o});
-        });
+      // Add entering links in the parent’s old position.
+      link.enter().insert("path", ".node")
+          .attr("class", "link")
+          .attr("d", function(d) {
+            var o = {x: d.source.px, y: d.source.py};
+            return diagonal({source: o, target: o});
+          });
 
-    // Transition nodes and links to their new positions.
-    var t = svg.transition()
-               .duration(duration);
+      // Transition nodes and links to their new positions.
+      var t = svg.transition()
+                 .duration(duration);
 
-    t.selectAll(".link")
-              .attr("d", diagonal);
+      t.selectAll(".link")
+                .attr("d", diagonal);
 
-    t.selectAll(".node")
-              .attr("cx", function(d) { return d.px = d.x; })
-              .attr("cy", function(d) { return d.py = d.y; });
+      t.selectAll(".node")
+                .attr("cx", function(d) { return d.px = d.x; })
+                .attr("cy", function(d) { return d.py = d.y; });
 
-    t.selectAll(".node-text")
-              .attr("x", function(d) { return d.px = d.x; })
-              .attr("y", function(d) { return d.py = d.y; })
-              .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
-
+      t.selectAll(".node-text")
+                .attr("x", function(d) { return d.px = d.x; })
+                .attr("y", function(d) { return d.py = d.y; })
+                .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
       break;
     case "solution":
+      var i = 0;
+      var links = d3.selectAll(".link");
+      console.log(links);
+      links.style("stroke",function(d){
+        if(d.source.id === msg.solution[i] &&
+           d.target.id === msg.solution[i+1]){
+          i++;
+          return "#f00";
+        } else
+          return "#999";
+      });
       break;
   }
 }
 
-function submit () {
+function submit() {
   $('#submit').remove();
   var start = $('#start').val(),
         end = $('#end').val(),
@@ -114,4 +124,6 @@ function submit () {
 
   var ws = new WebSocket(url);
   ws.onmessage = receive;
+  ws.onclose = function(event){console.log("close: ", event);};
+  ws.onerror = function(event){console.log("error: ", event);};
 }
