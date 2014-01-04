@@ -55,6 +55,7 @@ def dijkstra(start, finish, ws)
       seq << start
       puts seq.reverse.to_s
       ws.send({:type => 'solution', :solution => seq.reverse}.to_json)
+      sleep 5
       ws.close_connection_after_writing
       return seq
     end

@@ -1,4 +1,5 @@
 var w = 1024, h = 400;
+var ws;
 var duration = 750;
 var WIKIBASE = "http://en.wikipedia.org/wiki/";
 var tree = d3.layout.tree()
@@ -112,6 +113,7 @@ function receive (event) {
         } else
           return "#999";
       });
+      ws.close();
       break;
   }
 }
@@ -122,7 +124,7 @@ function submit() {
         end = $('#end').val(),
         url = "ws://localhost:4567/solve?start="+start+"&end="+end;
 
-  var ws = new WebSocket(url);
+  ws = new WebSocket(url);
   ws.onmessage = receive;
   ws.onclose = function(event){console.log("close: ", event);};
   ws.onerror = function(event){console.log("error: ", event);};
