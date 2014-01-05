@@ -64,11 +64,13 @@ function receive (event) {
           .append("circle")
           .attr("class", "node")
           .attr("r", 4)
-          .text(function(d){return d.id;})
           .attr("cx", function(d) { return d.parent.px; })
           .attr("cy", function(d) { return d.parent.py; });
 
       node.enter()
+                  // .append("a")
+                  // .attr("xlink:href",function(d){return WIKIBASE + d.id;})
+                  // .attr("target","_blank")
           .append("text")
           .attr("class", "node-text")
           .attr("x", function(d) { return d.parent.px;})
