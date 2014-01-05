@@ -1,4 +1,4 @@
-var w = 1024, h = 400;
+var w = (window.innerWidth * 0.9) | 0, h = (window.innerHeight * 0.75) | 0;
 var ws;
 var duration = 750;
 var WIKIBASE = "http://en.wikipedia.org/wiki/";
