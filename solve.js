@@ -48,28 +48,8 @@ function submit() {
     return -1;
   }
 
-  // The star here
-  function receive (event) {
-    var msg = JSON.parse(event.data);
-    switch(msg.type) {
-      case "progress":
-        // Add the child to the correct parent
-        var n = {id: msg.current},
-            p = {id: msg.previous},
-        index = indexOf(nodes, "id", msg.previous);
-        if(index < 0){
-          p.children = [n];
-          nodes.push(p);
-        } else {
-          var pn = nodes[index];
-          if (pn.children)
-            pn.children.push(n);
-          else
-            pn.children = [n];
-        }
-        nodes.push(n);
-
-        // Recompute the layout and data join.
+  var update = function(){
+    // Recompute the layout and data join.
         node = node.data(tree.nodes(root), function(d) { return d.id; });
         link = link.data(tree.links(nodes), function(d) { return d.source.id + "-" + d.target.id; });
 
@@ -117,9 +97,36 @@ function submit() {
                   .attr("x", function(d) { return d.px = d.x; })
                   .attr("y", function(d) { return d.py = d.y; })
                   .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
+  };
+
+  // Should make the UI a little more responsive
+  update = _.wrap(update,function(fn){_.defer(fn)});
+
+  // The star here
+  function receive (event) {
+    var msg = JSON.parse(event.data);
+    switch(msg.type) {
+      case "progress":
+        // Add the child to the correct parent
+        var n = {id: msg.current},
+            p = {id: msg.previous},
+        index = indexOf(nodes, "id", msg.previous);
+        if(index < 0){
+          p.children = [n];
+          nodes.push(p);
+        } else {
+          var pn = nodes[index];
+          if (pn.children)
+            pn.children.push(n);
+          else
+            pn.children = [n];
+        }
+        nodes.push(n);
+        update();
         break;
 
       case "solution":
+      _.defer(function(){
         var i = 0;
         var links = d3.selectAll(".link");
         links.style("stroke",function(d){
@@ -136,7 +143,9 @@ function submit() {
               return "block";
             return;
           });
-        ws.close();
+        
+      });
+      ws.close();
         break;
 
       case "error":
