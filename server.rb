@@ -82,37 +82,42 @@ get '/solve' do
     body 'Please use a websocket to connect'
     return
   end
-  if params[:start].nil?
-    status 400
-    body 'Missing start parameter'
-    return
-  end
-  if params[:end].nil?
-    status 400
-    body 'Missing end parameter'
-    return
-  end
-  start = params[:start]
-  finish = params[:end]
-  unless valid_wiki(start)
-    status 400
-    body 'The start address is not a valid en.wikipedia address'
-    return
-  end
-  unless valid_wiki(finish)
-    status 400
-    body 'The end address is not a valid en.wikipedia address'
-    return
-  end
 
   request.websocket do |ws|
-    ws.onopen do
-      settings.sockets << ws
-      dijkstra(start,finish,ws)
-    end
+
     ws.onclose do
       warn('websocket closed')
       settings.sockets.delete(ws)
+    end
+
+    ws.onopen do
+      if params[:start].nil?
+        ws.send({:type => 'error', :message => 'Missing start parameter'}.to_json)
+        ws.close_connection_after_writing
+        return
+      end
+      if params[:end].nil?
+        ws.send({:type => 'error', :message => 'Missing end parameter'}.to_json)
+        ws.close_connection_after_writing
+        return
+      end
+
+      start = params[:start]
+      finish = params[:end]
+
+      unless valid_wiki(start)
+        ws.send({:type => 'error', :message => 'Start article does not exist'}.to_json)
+        ws.close_connection_after_writing
+        return
+      end
+      unless valid_wiki(finish)
+        ws.send({:type => 'error', :message => 'End article does not exist'}.to_json)
+        ws.close_connection_after_writing
+        return
+      end
+
+      settings.sockets << ws
+      dijkstra(start,finish,ws)
     end
   end
 
