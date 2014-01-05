@@ -1,0 +1,42 @@
+@import "settings";
+@import "foundation";
+
+$link-color: #0010ff;
+$node-stroke: 3px;
+
+body {
+  background: url("noise.png") repeat scroll 0 0;
+}
+
+.node {
+  stroke: #000;
+  stroke-width: $node-stroke;
+}
+
+svg .node-text {
+  display: none;
+  color: $link-color;
+}
+
+svg a:hover {
+  fill: $link-color;
+}
+
+svg a:hover + .node-text {
+  display: block;
+}
+
+.link {
+  stroke: #999;
+  stroke-width: 1;
+  fill: none;
+}
+
+svg {
+  position: inherit;
+  overflow: visible;
+}
+
+#error-box {
+  display: none;
+}
