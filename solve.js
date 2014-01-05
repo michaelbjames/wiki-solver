@@ -8,6 +8,18 @@ function closeError() {
   $("#error-box").fadeOut();
 }
 
+$("#end").keyup(function(event){
+    if(event.keyCode === 13){ // enter button
+        submit();
+    }
+});
+
+$("#start").keyup(function(event){
+    if(event.keyCode === 13){ // enter button
+        submit();
+    }
+});
+
 function submit() {
   var start = $('#start').val(),
         end = $('#end').val(),

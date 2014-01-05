@@ -1,8 +1,11 @@
 {
-  "name": "foundation-compass-app",
-  "version": "0.0.1",
+  "name": "wiki-solver",
+  "version": "0.1.0",
   "private": "true",
   "dependencies": {
-    "foundation": "zurb/bower-foundation"
+    "foundation": "zurb/bower-foundation",
+    "underscore": "master",
+    "d3": "master",
+    "jquery": "master"
   }
 }
