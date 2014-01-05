@@ -41,7 +41,7 @@ function submit() {
   // Get ourselves a helper function
   function indexOf(list, key, value){
     for (var i = 0; i < list.length; i++) {
-      if(list[i][key] == value){
+      if(list[i][key] === value){
         return i;
       }
     }
@@ -112,8 +112,8 @@ function submit() {
             p = {id: msg.previous},
         index = indexOf(nodes, "id", msg.previous);
         if(index < 0){
-          p.children = [n];
-          nodes.push(p);
+          var pn = nodes[0];
+          pn.id = msg.current;
         } else {
           var pn = nodes[index];
           if (pn.children)
