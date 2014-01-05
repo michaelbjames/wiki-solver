@@ -96,7 +96,8 @@ function submit() {
         t.selectAll(".node-text")
                   .attr("x", function(d) { return d.px = d.x; })
                   .attr("y", function(d) { return d.py = d.y; })
-                  .attr("transform", function(d){ return "rotate(-45," + d.x + "," + d.y+ ")";});
+                  .attr("transform", function(d){ 
+                   if(d.depth !== 0) return "rotate(-45," + d.x + "," + d.y+ ")";});
   };
 
   // Should make the UI a little more responsive
