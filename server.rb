@@ -73,6 +73,8 @@ def dijkstra(start, finish, ws)
       end
     end
   end
+  ws.send({:type => 'error', :message => 'Unable to find a path between the two articles'}.to_json)
+  ws.close_connection_after_writing
   return 'No Solution'
 end
 
