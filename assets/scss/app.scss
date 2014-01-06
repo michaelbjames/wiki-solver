@@ -35,6 +35,7 @@ svg a:hover + .node-text {
 svg {
   position: inherit;
   overflow: visible;
+  clip: auto;
 }
 
 #error-box {

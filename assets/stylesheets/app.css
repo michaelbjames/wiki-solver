@@ -7742,9 +7742,10 @@ svg a:hover + .node-text {
 svg {
   position: inherit;
   overflow: visible;
+  clip: auto;
 }
 
-/* line 40, ../scss/app.scss */
+/* line 41, ../scss/app.scss */
 #error-box {
   display: none;
 }
