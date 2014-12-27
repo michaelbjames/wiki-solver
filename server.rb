@@ -4,7 +4,7 @@
 # require 'open-uri'
 # require 'json'
 require 'sequel'
-require 'ruby-prof'
+# require 'ruby-prof'
 
 # set :server, 'thin'
 # set :sockets, []
@@ -23,14 +23,17 @@ DB = Sequel.connect(MYDATABASE)
 #   return true
 # end
 
-def neighbors(name)
-  link_numbers = DB[:page].filter(:page_title => name).map(:page_id)
-  linked_names = link_numbers.map do |e| 
-    DB[:pagelinks].filter(:pl_from => e).map(:pl_title)
-    end
-  return linked_names.flatten
+def neighbors(id)
+  DB[:links].filter(:from_id => id).map(:to_id)
 end
 
+def id_to_name(id)
+  DB[:page].filter(:page_id => id).first[:page_title]
+end
+
+def name_to_id(name)
+  DB[:page].filter(:page_title => name).first[:page_id]
+end
 
 # def neighbors(name)
 #   article = Nokogiri::HTML(open(WIKIBASE + name))
@@ -45,7 +48,7 @@ end
 #   connected.uniq
 # end
 
-def find_path(start, finish)
+def find_path(start_name, finish_name)
   dist = Hash.new{|k,v| v = Float::INFINITY}
   visited = Hash.new{|k,v| v = false}
   previous = Hash.new
@@ -53,19 +56,23 @@ def find_path(start, finish)
   seq = Array.new
   current = ""
 
+  start = name_to_id(start_name)
+  finish = name_to_id(finish_name)
+
   dist[start] = 0
   queue << start
 
   while queue.length > 0
     current = queue.shift
     # puts "#{previous[current]} -> #{current}"
-    if current.casecmp(finish) == 0
+    if current == finish
       while(!previous[current].nil?)
         seq << current
         current = previous[current]
       end
       seq << start
-      puts seq.reverse.to_s
+      seq.map! {|e| id_to_name(e)}
+      puts seq.to_s
       return seq
     end
 
@@ -83,13 +90,6 @@ def find_path(start, finish)
     end
   end
   return 'No Solution'
-end
-
-result = RubyProf.profile {
-  find_path('Franz_Liszt','Symphonic_poem')
-}
-open("callgrind.profile", "w") do |f|
-  RubyProf::CallTreePrinter.new(result).print(f, :min_percent => 1)
 end
 
 # get '/solve' do
