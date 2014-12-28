@@ -4,7 +4,8 @@
 # require 'open-uri'
 # require 'json'
 require 'sequel'
-# require 'ruby-prof'
+require 'parallel'
+require 'ruby-prof'
 
 # set :server, 'thin'
 # set :sockets, []
@@ -58,13 +59,14 @@ def find_path(start_name, finish_name)
 
   start = name_to_id(start_name)
   finish = name_to_id(finish_name)
+  puts "#{start_name}(#{start}) -> #{finish_name}(#{finish})"
 
   dist[start] = 0
   queue << start
 
   while queue.length > 0
     current = queue.shift
-    # puts "#{previous[current]} -> #{current}"
+    puts "#{previous[current]} -> #{current}"
     if current == finish
       while(!previous[current].nil?)
         seq << current
@@ -72,13 +74,15 @@ def find_path(start_name, finish_name)
       end
       seq << start
       seq.map! {|e| id_to_name(e)}
-      puts seq.to_s
-      return seq
+      solution = seq.reverse
+      puts solution.to_s
+      return solution
     end
 
     visited[current] = true
 
-    neighbors(current).each do |neighbor|
+    neighbors = neighbors(current)
+    Parallel.each(neighbors, :in_threads => 2) do |neighbor|
       alt = dist[current] + 1
       if(alt < dist[neighbor])
         dist[neighbor] = alt
@@ -90,6 +94,13 @@ def find_path(start_name, finish_name)
     end
   end
   return 'No Solution'
+end
+
+result = RubyProf.profile {
+  find_path('Elizabeth_I_of_England','Mersenne_prime')
+}
+open("callgrind.profile", "w") do |f|
+  RubyProf::CallTreePrinter.new(result).print(f, :min_percent => 1)
 end
 
 # get '/solve' do
