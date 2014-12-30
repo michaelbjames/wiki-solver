@@ -6,13 +6,28 @@ import (
     "database/sql"
     "os"
     _ "github.com/go-sql-driver/mysql"
+    // "runtime/pprof"
+    // "flag"
     // "io/ioutil"
     // "strings"
 )
 
 type wiki_node uint64
 
+// var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 func main() {
+    // flag.Parse()
+    // if *cpuprofile != "" {
+    //     f, err := os.Create(*cpuprofile)
+    //     if err != nil {
+    //         log.Fatal(err)
+    //     }
+    //     pprof.StartCPUProfile(f)
+    //     defer pprof.StopCPUProfile()
+    //     defer f.Close()
+    // }
+
     db, err := sql.Open("mysql", "root:notasecret@/wiki")
     if err != nil {
         fmt.Fprintf(os.Stderr,"----FATAL ERROR---\n")
@@ -20,16 +35,10 @@ func main() {
     }
     defer db.Close()
 
-    // test1 := id_to_name(db, 10128)
-    // fmt.Printf("%s\n",test1)
-    // test2 := name_to_id(db,"Elizabeth_I_of_England")
-    // fmt.Printf("%d\n",test2)
-    // test3 := neighbors(db, 10128)
-    // for i := 0; i < len(test3); i++ {
-    //     fmt.Printf("%d\n", test3[i])
-    // }
     // _ = find_path(db, "Elizabeth_I_of_England", "Mersenne_prime")
-    _ = find_path(db, "Elizabeth_I_of_England", "Martyr")
+    _ = find_path(db, "Renaissance_humanism", "Scholasticism")
+    // _ = find_path(db, "Elizabeth_I_of_England", "Martyr")
+
 
 
     return
@@ -37,10 +46,9 @@ func main() {
 
 func find_path(db *sql.DB, start_name string, end_name string) (path []string) {
     queue := make(chan wiki_node)
-    done := make(chan []string)
     defer close(queue)
-    defer close(done)
-    // var sequence []wiki_node
+
+    var sequence []wiki_node
     distance := make(map[wiki_node]int)
     previous := make(map[wiki_node]wiki_node)
     // var current wiki_node
@@ -62,8 +70,18 @@ func find_path(db *sql.DB, start_name string, end_name string) (path []string) {
             fmt.Printf(".")
             if current == finish {
                 search_finished = true
-                fmt.Printf("End found, building solution...\n")
-                return tmp
+                fmt.Printf("\nEnd found, building solution...\n")
+                for current != start {
+                    sequence = append(sequence, current)
+                    current = previous[current]
+                }
+                sequence = append(sequence, start)
+                for _,node := range sequence {
+                    name := id_to_name(db, node)
+                    path = append(path, name)
+                    fmt.Printf("%s <- ", name)
+                }
+                return
             }
             
             node_neighbors := neighbors(db, current)
